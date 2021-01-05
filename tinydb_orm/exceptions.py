@@ -4,3 +4,7 @@ class ORMError(Exception):
 
 class DuplicateError(ORMError):
     pass
+
+
+class FieldValueNotSet(ORMError):
+    pass

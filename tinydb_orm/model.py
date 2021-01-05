@@ -3,7 +3,7 @@ from operator import and_
 
 from tinydb import Query
 
-from .exceptions import DuplicateError
+from .exceptions import DuplicateError, FieldValueNotSet
 from .fields import Field, PrimaryKey, _missing
 
 
@@ -106,7 +106,7 @@ class Model(metaclass=ModelMeta):
                 continue
             default = field.default
             if default is _missing:
-                raise ValueError(f'field {key} has no value')
+                raise FieldValueNotSet(f'field {key} has no value')
             if callable(default):
                 default = default()
             self.__value_mapping[key] = default
@@ -120,7 +120,6 @@ class Model(metaclass=ModelMeta):
     @classmethod
     def filter(cls, **query):
         query_args = cls._construct_query(**query)
-        print(f'{query_args=}')
         lst = cls._meta.table.search(query_args)
         return [cls._from_tinydb_document(item) for item in lst]
 
@@ -152,4 +151,10 @@ class Model(metaclass=ModelMeta):
 
     @classmethod
     def count(cls):
-        return cls._meta.table.count()
+        return len(cls._meta.table.all())
+
+    def __str__(self):
+        return f'<{self.__class__.__name__}: {self.id}>'
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}: {self.id}>'
